@@ -1,11 +1,19 @@
 const {body} = require("express-validator");
+const { USERS } = require("../items");
 
 const registerValidator = [
     body("fullName")
     .notEmpty().withMessage("Nama tidak boleh kosong"),
     body("email")
     .notEmpty().withMessage("Email tidak boleh kosong")
-    .isEmail().withMessage("Email tidak valid"),
+    .isEmail().withMessage("Email tidak valid")
+    .custom(value => {
+        const existingUser = USERS.find(user => user.email === value);
+        if (existingUser) {
+          throw new Error('Email already registered');
+        }
+        return true;
+    }),
     body("password")
     .notEmpty().withMessage("Password tidak boleh kosong")
     .isLength( { min: 8, max: 15 } ).withMessage("Password minimal 8 karakter dan maksimal 15 karakter")
